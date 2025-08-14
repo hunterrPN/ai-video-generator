@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Generator</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <h1>🎬 AI Video Generator</h1>
+                <p>Transform your ideas into stunning videos with AI</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="generator-section">
+                <div class="input-section">
+                    <h2>Describe Your Vision</h2>
+                    <div class="prompt-container">
+                        <textarea 
+                            id="promptInput" 
+                            placeholder="A golden retriever running through a field of sunflowers at sunset..."
+                            maxlength="500"
+                            rows="4"
+                        ></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/500
+                        </div>
+                    </div>
+                    
+                    <div class="options-row">
+                        <div class="option-group">
+                            <label for="durationSelect">Duration:</label>
+                            <select id="durationSelect">
+                                <option value="5">5 seconds</option>
+                                <option value="7" selected>7 seconds</option>
+                                <option value="10">10 seconds</option>
+                            </select>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="styleSelect">Style:</label>
+                            <select id="styleSelect">
+                                <option value="cinematic" selected>Cinematic</option>
+                                <option value="natural">Natural</option>
+                                <option value="artistic">Artistic</option>
+                                <option value="animated">Animated</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button id="generateBtn" class="generate-btn">
+                        <span class="btn-text">Generate Video</span>
+                        <span class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                            Generating...
+                        </span>
+                    </button>
+                </div>
+
+                <div class="examples-section">
+                    <h3>Try these examples:</h3>
+                    <div class="example-prompts">
+                        <button class="example-btn" data-prompt="A steaming cup of coffee on a wooden table with morning light streaming through a window">☕ Morning Coffee</button>
+                        <button class="example-btn" data-prompt="Ocean waves gently crashing against rocks during a beautiful sunset">🌊 Ocean Sunset</button>
+                        <button class="example-btn" data-prompt="A cat playfully chasing colorful butterflies in a garden">🐱 Playful Cat</button>
+                        <button class="example-btn" data-prompt="Colorful balloons floating slowly in a clear blue sky">🎈 Floating Balloons</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-section" id="resultSection" style="display: none;">
+                <div class="status-container" id="statusContainer">
+                    <div class="status-header">
+                        <h3>Generating Your Video</h3>
+                        <div class="status-indicator">
+                            <div class="pulse"></div>
+                            <span id="statusText">Queued...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                        <div id="progressText" class="progress-text">0%</div>
+                    </div>
+                    
+                    <div class="generation-details">
+                        <p><strong>Prompt:</strong> <span id="currentPrompt"></span></p>
+                        <p><strong>Generation ID:</strong> <span id="generationId"></span></p>
+                    </div>
+                </div>
+
+                <div class="video-container" id="videoContainer" style="display: none;">
+                    <h3>Your Generated Video</h3>
+                    <div class="video-wrapper">
+                        <video id="generatedVideo" controls muted>
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div class="video-actions">
+                        <a id="downloadBtn" class="action-btn download-btn" download>
+                            📥 Download Video
+                        </a>
+                        <button id="shareBtn" class="action-btn share-btn">
+                            🔗 Copy Link
+                        </button>
+                        <button id="newVideoBtn" class="action-btn new-btn">
+                            ✨ Generate Another
+                        </button>
+                    </div>
+                </div>
+
+                <div class="error-container" id="errorContainer" style="display: none;">
+                    <div class="error-content">
+                        <h3>⚠️ Generation Failed</h3>
+                        <p id="errorMessage"></p>
+                        <button id="retryBtn" class="action-btn retry-btn">
+                            🔄 Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <p>Built for <strong>Peppo AI Engineering Internship</strong> Technical Challenge</p>
+                <div class="tech-stack">
+                    <span class="tech-tag">FastAPI</span>
+                    <span class="tech-tag">Stability AI</span>
+                    <span class="tech-tag">Vanilla JS</span>
+                    <span class="tech-tag">Railway</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
