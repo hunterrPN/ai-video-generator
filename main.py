@@ -8,10 +8,11 @@ import os
 import asyncio
 import time
 from typing import Dict, Any, Optional
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 import httpx
 import uuid
@@ -21,6 +22,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Create single FastAPI instance
 app = FastAPI(
     title="AI Video Generator (Free APIs)",
     description="Generate short videos from text prompts using free AI APIs",
@@ -36,8 +38,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files (frontend)
+# Mount static files FIRST - यह important है
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Templates directory setup
+templates = Jinja2Templates(directory="templates")
 
 # Configuration - All these are FREE!
 LUMA_API_KEY = os.getenv("LUMA_API_KEY")  # Free tier: 30 generations/month
@@ -68,18 +73,54 @@ class StatusResponse(BaseModel):
     error: Optional[str] = None
 
 @app.get("/", response_class=HTMLResponse)
-async def serve_frontend():
-    """Serve the main frontend page"""
+async def serve_frontend(request: Request):
+    """Serve the main frontend page with proper template rendering"""
     try:
-        with open("static/index.html", "r") as f:
-            return HTMLResponse(f.read())
-    except FileNotFoundError:
-        return HTMLResponse("""
+        # Check if templates directory exists
+        if os.path.exists("templates/index.html"):
+            return templates.TemplateResponse("index.html", {"request": request})
+        elif os.path.exists("static/index.html"):
+            # If index.html is in static folder
+            with open("static/index.html", "r", encoding="utf-8") as f:
+                return HTMLResponse(f.read())
+        else:
+            # Fallback HTML if no template found
+            return HTMLResponse("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>AI Video Generator</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 40px; }
+                    .container { max-width: 800px; margin: 0 auto; }
+                    .error { color: red; padding: 20px; border: 1px solid red; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>🎬 AI Video Generator API (Free APIs)</h1>
+                    <div class="error">
+                        <p><strong>Frontend files not found!</strong></p>
+                        <p>Expected: templates/index.html or static/index.html</p>
+                        <p>Current folder contents:</p>
+                        <ul>
+                        """ + "".join([f"<li>{item}</li>" for item in os.listdir(".")]) + """
+                        </ul>
+                    </div>
+                    <p>Use POST /generate-video to generate videos via API.</p>
+                    <p>Supports: Luma Dream Machine, Hugging Face, Replicate</p>
+                    <p><a href="/docs">View API Documentation</a></p>
+                </div>
+            </body>
+            </html>
+            """)
+    except Exception as e:
+        return HTMLResponse(f"""
         <html>
             <body>
-                <h1>AI Video Generator API (Free APIs)</h1>
-                <p>Frontend files not found. Use POST /generate-video to generate videos.</p>
-                <p>Supports: Luma Dream Machine, Hugging Face, Replicate</p>
+                <h1>Error Loading Frontend</h1>
+                <p>Error: {str(e)}</p>
+                <p><a href="/docs">API Documentation</a></p>
             </body>
         </html>
         """)
